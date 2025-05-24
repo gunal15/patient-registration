@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -14,8 +14,15 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "react-toastify";
+import { PGlite } from "@electric-sql/pglite";
 
 const Registration = () => {
+  const [db, setDb] = useState(null);
+  useEffect(() => {
+    setDb(new PGlite());
+  }, []);
+  // const db = new PGlite();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
@@ -45,9 +52,56 @@ const Registration = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Patient Data:", patientData);
+    if (!db) {
+      console.error("Db not initiated");
+      return;
+    }
+
+    try {
+      await db.exec({
+        sql: `
+          CREATE TABLE IF NOT EXISTS patients (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            age INTEGER,
+            gender TEXT,
+            cause TEXT,
+            selectedDoctor TEXT,
+            contactNumber TEXT,
+            address TEXT
+          );
+          INSERT INTO patients (id, name, age, gender, cause, selectedDoctor, contactNumber, address)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        `,
+        args: [
+          patientData.id,
+          patientData.name,
+          patientData.age,
+          patientData.gender,
+          patientData.cause,
+          patientData.selectedDoctor,
+          patientData.contactNumber,
+          patientData.address,
+        ],
+      });
+
+      setPatientData({
+        id: uuidv4(),
+        name: "",
+        age: "",
+        gender: "",
+        cause: "",
+        selectedDoctor: "",
+        contactNumber: "",
+        address: "",
+      });
+      console.log("Patient registered successfully!");
+      toast.success("Patient registered successfully!");
+    } catch (error) {
+      console.error("Error registering patient:", error);
+    }
   };
 
   return (

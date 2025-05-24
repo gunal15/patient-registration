@@ -10,6 +10,7 @@ import {
   useTheme,
   useMediaQuery,
   IconButton,
+  TextField,
 } from "@mui/material";
 import {
   Person,
@@ -21,6 +22,7 @@ import {
 } from "@mui/icons-material";
 import { useLiveQuery, usePGlite } from "@electric-sql/pglite-react";
 import { useNavigate } from "react-router-dom";
+import { Search } from "@mui/icons-material"; // Add this import
 
 const PatientsList = () => {
   const theme = useTheme();
@@ -30,6 +32,7 @@ const PatientsList = () => {
   const db = usePGlite();
   const [isDbReady, setIsDbReady] = useState(false);
   const [patients, setPatients] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const localPatients = JSON.parse(localStorage.getItem("patients") || "[]");
@@ -99,22 +102,26 @@ const PatientsList = () => {
     fetchPatients();
   }, [isDbReady, db]);
 
+  const filteredPatients = patients.filter((patient) =>
+    patient.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <Container maxWidth="lg" sx={{ py: 4, position: 'relative' }}>
+    <Container maxWidth="lg" sx={{ py: 4, position: "relative" }}>
       <IconButton
-        onClick={() => navigate('/')}
+        onClick={() => navigate("/")}
         sx={{
-          position: 'absolute',
+          position: "absolute",
           left: { xs: 16, sm: 24 },
           top: { xs: 16, sm: 24 },
           backgroundColor: theme.palette.primary.main,
-          color: 'white',
-          '&:hover': {
+          color: "white",
+          "&:hover": {
             backgroundColor: theme.palette.primary.dark,
-            transform: 'scale(1.1)',
+            transform: "scale(1.1)",
           },
-          transition: 'all 0.2s ease-in-out',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          transition: "all 0.2s ease-in-out",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         }}
       >
         <Home />
@@ -133,9 +140,48 @@ const PatientsList = () => {
         Registered Patients
       </Typography>
 
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          justifyContent: "center",
+          width: "100%",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            backgroundColor: "white",
+            borderRadius: 2,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            p: 1,
+            width: { xs: "100%", sm: "80%", md: "60%" },
+          }}
+        >
+          <Search sx={{ color: "text.secondary", mr: 1 }} />
+          <TextField
+            fullWidth
+            variant="standard"
+            placeholder="Search patients by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              disableUnderline: true,
+              sx: {
+                fontSize: "1rem",
+                "&::placeholder": {
+                  color: "text.secondary",
+                },
+              },
+            }}
+          />
+        </Box>
+      </Box>
+
       <Grid container spacing={3}>
-        {patients && patients.length > 0 ? (
-          patients.map((patient) => (
+        {filteredPatients && filteredPatients.length > 0 ? (
+          filteredPatients.map((patient) => (
             <Grid item xs={12} sm={6} md={6} lg={6} key={patient.id}>
               <Card
                 elevation={2}
@@ -276,7 +322,11 @@ const PatientsList = () => {
               color: "text.secondary",
             }}
           >
-            <Typography variant="h6">No patients registered yet</Typography>
+            <Typography variant="h6">
+              {searchQuery
+                ? "No patients found matching your search"
+                : "No patients registered yet"}
+            </Typography>
           </Box>
         )}
       </Grid>

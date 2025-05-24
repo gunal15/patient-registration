@@ -20,7 +20,7 @@ import {
   LocationOn,
   Home,
 } from "@mui/icons-material";
-import { useLiveQuery, usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@electric-sql/pglite-react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "@mui/icons-material";
 import Loader from "./Loader";
@@ -29,7 +29,6 @@ const PatientsList = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const db = usePGlite();
   const [isDbReady, setIsDbReady] = useState(false);
   const [patients, setPatients] = useState([]);

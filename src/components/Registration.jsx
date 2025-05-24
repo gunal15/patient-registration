@@ -18,7 +18,6 @@ import { Home } from "@mui/icons-material";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import { usePGlite } from "@electric-sql/pglite-react";
-import { useLiveQuery } from "@electric-sql/pglite-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 
@@ -28,7 +27,6 @@ const Registration = () => {
   // const db = new PGlite();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const [isDbReady, setIsDbReady] = useState(false);
   const doctors = [
     { name: "Dr. Sarah Johnson", specialization: "Cardiologist" },
@@ -323,6 +321,7 @@ const Registration = () => {
             />
 
             <Button
+              disabled={!isDbReady}
               type="submit"
               variant="contained"
               color="primary"

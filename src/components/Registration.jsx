@@ -16,7 +16,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import { usePGlite } from "@electric-sql/pglite-react";
-
+import { useLiveQuery } from "@electric-sql/pglite-react";
 import { useNavigate } from "react-router-dom";
 
 const Registration = () => {
@@ -26,13 +26,38 @@ const Registration = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
-
+  const [isDbReady, setIsDbReady] = useState(false);
   const doctors = [
     { name: "Dr. Sarah Johnson", specialization: "Cardiologist" },
     { name: "Dr. Michael Chen", specialization: "Neurologist" },
     { name: "Dr. Emily Williams", specialization: "Pediatrician" },
   ];
+  useEffect(() => {
+    const initDb = async () => {
+      if (!db) return;
 
+      try {
+        await db.exec(`
+          CREATE TABLE IF NOT EXISTS patients (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            gender TEXT NOT NULL,
+            cause TEXT NOT NULL,
+            selectedDoctor TEXT NOT NULL,
+            contactNumber TEXT NOT NULL,
+            address TEXT NOT NULL
+          );
+        `);
+        setIsDbReady(true);
+      } catch (error) {
+        console.error("Error initializing database:", error);
+        toast.error("Failed to initialize database");
+      }
+    };
+
+    initDb();
+  }, [db]);
   const [patientData, setPatientData] = useState({
     id: uuidv4(),
     name: "",
@@ -55,17 +80,25 @@ const Registration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!db) {
-      console.error("Db not initiated");
+      console.error("Database not initiated");
       return;
     }
 
     try {
-      await db.exec({
-        sql: `
-          INSERT INTO patients (id, name, age, gender, cause, selectedDoctor, contactNumber, address)
-          VALUES (${patientData.id},${patientData.name},${patientData.age},${patientData.gender},${patientData.cause},${patientData.selectedDoctor}, ${patientData.contactNumber}, ${patientData.address});
-        `,
-      });
+      await db.query(
+        `INSERT INTO patients (id, name, age, gender, cause, selectedDoctor, contactNumber, address)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          patientData.id,
+          patientData.name,
+          parseInt(patientData.age),
+          patientData.gender,
+          patientData.cause,
+          patientData.selectedDoctor,
+          patientData.contactNumber,
+          patientData.address,
+        ]
+      );
 
       setPatientData({
         id: uuidv4(),
@@ -77,11 +110,12 @@ const Registration = () => {
         contactNumber: "",
         address: "",
       });
-      console.log("Patient registered successfully!");
+
       toast.success("Patient registered successfully!");
       navigate("/");
     } catch (error) {
       console.error("Error registering patient:", error);
+      toast.error("Failed to register patient");
     }
   };
 

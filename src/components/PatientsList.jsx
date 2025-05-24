@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -17,17 +17,58 @@ import {
   Phone,
   LocationOn,
 } from "@mui/icons-material";
-import { useLiveQuery } from "@electric-sql/pglite-react";
+import { useLiveQuery, usePGlite } from "@electric-sql/pglite-react";
 
 const PatientsList = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  
-  // Use live query and handle the response properly
-  const { rows: patients = [] } = useLiveQuery.sql`
-    SELECT * FROM patients 
-    ORDER BY name ASC
-  ` || { rows: [] };
+  const db = usePGlite();
+  const [isDbReady, setIsDbReady] = useState(false);
+  const [patients, setPatients] = useState([]);
+
+  useEffect(() => {
+    const initDb = async () => {
+      if (!db) return;
+
+      try {
+        await db.exec(`
+          CREATE TABLE IF NOT EXISTS patients (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            gender TEXT NOT NULL,
+            cause TEXT NOT NULL,
+            selectedDoctor TEXT NOT NULL,
+            contactNumber TEXT NOT NULL,
+            address TEXT NOT NULL
+          );
+        `);
+        setIsDbReady(true);
+      } catch (error) {
+        console.error("Error initializing database:", error);
+      }
+    };
+
+    initDb();
+  }, [db]);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      if (!isDbReady || !db) return;
+
+      try {
+        const result = await db.query(`
+          SELECT * FROM patients 
+          ORDER BY name ASC
+        `);
+        setPatients(result.rows || []);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
+    };
+
+    fetchPatients();
+  }, [isDbReady, db]);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

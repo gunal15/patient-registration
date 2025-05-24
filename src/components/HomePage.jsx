@@ -9,8 +9,10 @@ import {
   Button,
 } from "@mui/material";
 import Carousel from "react-material-ui-carousel";
+import { useNavigate } from "react-router-dom";  // Change this import
 
 const HomePage = () => {
+  const navigate = useNavigate();  // Change this line
   const carouselImages = [
     {
       url: "https://images.unsplash.com/photo-1538108149393-fbbd81895907",
@@ -43,6 +45,10 @@ const HomePage = () => {
       experience: "10+ years of experience",
     },
   ];
+
+  const handleRegisterClick = () => {
+    navigate("/registration");  // Change this line
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -82,7 +88,11 @@ const HomePage = () => {
           alignItems: "center",
         }}
       >
-        <Button variant="contained" color="primary">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleRegisterClick}
+        >
           Register
         </Button>
       </Box>

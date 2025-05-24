@@ -100,6 +100,12 @@ const Registration = () => {
         ]
       );
 
+      const existingPatients = JSON.parse(
+        localStorage.getItem("patients") || "[]"
+      );
+      existingPatients.push(patientData);
+      localStorage.setItem("patients", JSON.stringify(existingPatients));
+
       setPatientData({
         id: uuidv4(),
         name: "",

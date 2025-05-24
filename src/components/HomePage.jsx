@@ -47,10 +47,10 @@ const HomePage = () => {
   ];
 
   const handleRegisterClick = () => {
-    navigate("/registration"); // Change this line
+    navigate("/registration");
   };
   const handleViewPatientsClick = () => {
-    navigate("/patients"); // Change this line
+    navigate("/patients");
   };
 
   return (

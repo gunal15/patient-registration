@@ -27,6 +27,11 @@ const PatientsList = () => {
   const [patients, setPatients] = useState([]);
 
   useEffect(() => {
+    const localPatients = JSON.parse(localStorage.getItem("patients") || "[]");
+    setPatients(localPatients);
+  }, []);
+
+  useEffect(() => {
     const initDb = async () => {
       if (!db) return;
 
@@ -61,7 +66,26 @@ const PatientsList = () => {
           SELECT * FROM patients 
           ORDER BY name ASC
         `);
-        setPatients(result.rows || []);
+
+        const localPatients = JSON.parse(
+          localStorage.getItem("patients") || "[]"
+        );
+
+        const mergedPatients = [...localPatients];
+
+        result.rows.forEach((dbPatient) => {
+          const existingIndex = mergedPatients.findIndex(
+            (p) => p.id === dbPatient.id
+          );
+          if (existingIndex === -1) {
+            mergedPatients.push(dbPatient);
+          } else {
+            mergedPatients[existingIndex] = dbPatient;
+          }
+        });
+
+        localStorage.setItem("patients", JSON.stringify(mergedPatients));
+        setPatients(mergedPatients);
       } catch (error) {
         console.error("Error fetching patients:", error);
       }

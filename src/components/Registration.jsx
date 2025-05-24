@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { useLiveQuery } from "@electric-sql/pglite-react";
 import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 
 const Registration = () => {
   const db = usePGlite();
@@ -34,10 +35,12 @@ const Registration = () => {
     { name: "Dr. Michael Chen", specialization: "Neurologist" },
     { name: "Dr. Emily Williams", specialization: "Pediatrician" },
   ];
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const initDb = async () => {
       if (!db) return;
-
+      setIsLoading(true);
       try {
         await db.exec(`
           CREATE TABLE IF NOT EXISTS patients (
@@ -55,6 +58,8 @@ const Registration = () => {
       } catch (error) {
         console.error("Error initializing database:", error);
         toast.error("Failed to initialize database");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -128,88 +133,132 @@ const Registration = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4, md: 6 }, position: 'relative' }}>
-      <IconButton
-        onClick={() => navigate('/')}
-        sx={{
-          position: 'absolute',
-          left: { xs: 16, sm: 24 },
-          top: { xs: 16, sm: 24 },
-          backgroundColor: theme.palette.primary.main,
-          color: 'white',
-          '&:hover': {
-            backgroundColor: theme.palette.primary.dark,
-            transform: 'scale(1.1)',
-          },
-          transition: 'all 0.2s ease-in-out',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          zIndex: 1,
-        }}
+    <>
+      {isLoading && <Loader />}
+      <Container
+        maxWidth="lg"
+        sx={{ py: { xs: 2, sm: 4, md: 6 }, position: "relative" }}
       >
-        <Home />
-      </IconButton>
-
-      <Paper
-        elevation={6}
-        sx={{
-          p: { xs: 2, sm: 3, md: 4 },
-          mt: { xs: 2, sm: 3, md: 4 },
-          borderRadius: 2,
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          backdropFilter: "blur(10px)",
-          boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-        }}
-      >
-        <Typography
-          variant={isMobile ? "h5" : "h4"}
-          gutterBottom
-          align="center"
+        <IconButton
+          onClick={() => navigate("/")}
           sx={{
-            fontWeight: 600,
-            color: theme.palette.primary.main,
-            mb: { xs: 2, sm: 3, md: 4 },
+            position: "absolute",
+            left: { xs: 16, sm: 24 },
+            top: { xs: 16, sm: 24 },
+            backgroundColor: theme.palette.primary.main,
+            color: "white",
+            "&:hover": {
+              backgroundColor: theme.palette.primary.dark,
+              transform: "scale(1.1)",
+            },
+            transition: "all 0.2s ease-in-out",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            zIndex: 1,
           }}
         >
-          Patient Registration
-        </Typography>
+          <Home />
+        </IconButton>
 
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
+        <Paper
+          elevation={6}
           sx={{
-            mt: 3,
-            display: "flex",
-            flexDirection: "column",
-            gap: { xs: 2, sm: 2.5, md: 3 },
+            p: { xs: 2, sm: 3, md: 4 },
+            mt: { xs: 2, sm: 3, md: 4 },
+            borderRadius: 2,
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
           }}
         >
-          <TextField
-            fullWidth
-            label="Patient Name"
-            name="name"
-            value={patientData.name}
-            onChange={handleChange}
-            required
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            gutterBottom
+            align="center"
             sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
+              fontWeight: 600,
+              color: theme.palette.primary.main,
+              mb: { xs: 2, sm: 3, md: 4 },
             }}
-          />
+          >
+            Patient Registration
+          </Typography>
 
           <Box
+            component="form"
+            onSubmit={handleSubmit}
             sx={{
+              mt: 3,
               display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              gap: { xs: 2, sm: 2, md: 3 },
+              flexDirection: "column",
+              gap: { xs: 2, sm: 2.5, md: 3 },
             }}
           >
             <TextField
               fullWidth
-              label="Age"
-              name="age"
-              type="number"
-              value={patientData.age}
+              label="Patient Name"
+              name="name"
+              value={patientData.name}
+              onChange={handleChange}
+              required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
+            />
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                gap: { xs: 2, sm: 2, md: 3 },
+              }}
+            >
+              <TextField
+                fullWidth
+                label="Age"
+                name="age"
+                type="number"
+                value={patientData.age}
+                onChange={handleChange}
+                required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                  },
+                }}
+              />
+
+              <FormControl
+                fullWidth
+                required
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                  },
+                }}
+              >
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  name="gender"
+                  value={patientData.gender}
+                  label="Gender"
+                  onChange={handleChange}
+                >
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                  <MenuItem value="other">Other</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <TextField
+              fullWidth
+              label="Cause of Visit"
+              name="cause"
+              multiline
+              rows={isMobile ? 2 : 3}
+              value={patientData.cause}
               onChange={handleChange}
               required
               sx={{
@@ -228,113 +277,75 @@ const Registration = () => {
                 },
               }}
             >
-              <InputLabel>Gender</InputLabel>
+              <InputLabel>Select Doctor</InputLabel>
               <Select
-                name="gender"
-                value={patientData.gender}
-                label="Gender"
+                name="selectedDoctor"
+                value={patientData.selectedDoctor}
+                label="Select Doctor"
                 onChange={handleChange}
               >
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-                <MenuItem value="other">Other</MenuItem>
+                {doctors.map((doctor) => (
+                  <MenuItem key={doctor.name} value={doctor.name}>
+                    {doctor.name} - {doctor.specialization}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
-          </Box>
 
-          <TextField
-            fullWidth
-            label="Cause of Visit"
-            name="cause"
-            multiline
-            rows={isMobile ? 2 : 3}
-            value={patientData.cause}
-            onChange={handleChange}
-            required
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
-            }}
-          />
-
-          <FormControl
-            fullWidth
-            required
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
-            }}
-          >
-            <InputLabel>Select Doctor</InputLabel>
-            <Select
-              name="selectedDoctor"
-              value={patientData.selectedDoctor}
-              label="Select Doctor"
+            <TextField
+              fullWidth
+              label="Contact Number"
+              name="contactNumber"
+              value={patientData.contactNumber}
               onChange={handleChange}
+              required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Address"
+              name="address"
+              multiline
+              rows={isMobile ? 2 : 3}
+              value={patientData.address}
+              onChange={handleChange}
+              required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                },
+              }}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{
+                mt: { xs: 2, sm: 3 },
+                mb: { xs: 1, sm: 2 },
+                py: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
+                fontSize: { xs: "1rem", sm: "1.1rem" },
+                textTransform: "none",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                "&:hover": {
+                  boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
+                },
+              }}
             >
-              {doctors.map((doctor) => (
-                <MenuItem key={doctor.name} value={doctor.name}>
-                  {doctor.name} - {doctor.specialization}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            fullWidth
-            label="Contact Number"
-            name="contactNumber"
-            value={patientData.contactNumber}
-            onChange={handleChange}
-            required
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
-            }}
-          />
-
-          <TextField
-            fullWidth
-            label="Address"
-            name="address"
-            multiline
-            rows={isMobile ? 2 : 3}
-            value={patientData.address}
-            onChange={handleChange}
-            required
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
-            }}
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{
-              mt: { xs: 2, sm: 3 },
-              mb: { xs: 1, sm: 2 },
-              py: { xs: 1.5, sm: 2 },
-              borderRadius: 2,
-              fontSize: { xs: "1rem", sm: "1.1rem" },
-              textTransform: "none",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-              "&:hover": {
-                boxShadow: "0 6px 16px rgba(0,0,0,0.2)",
-              },
-            }}
-          >
-            Register Patient
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+              Register Patient
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
+    </>
   );
 };
 

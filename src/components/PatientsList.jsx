@@ -9,6 +9,7 @@ import {
   Container,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import {
   Person,
@@ -16,12 +17,16 @@ import {
   LocalHospital,
   Phone,
   LocationOn,
+  Home,
 } from "@mui/icons-material";
 import { useLiveQuery, usePGlite } from "@electric-sql/pglite-react";
+import { useNavigate } from "react-router-dom";
 
 const PatientsList = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const db = usePGlite();
   const [isDbReady, setIsDbReady] = useState(false);
   const [patients, setPatients] = useState([]);
@@ -95,7 +100,26 @@ const PatientsList = () => {
   }, [isDbReady, db]);
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, position: 'relative' }}>
+      <IconButton
+        onClick={() => navigate('/')}
+        sx={{
+          position: 'absolute',
+          left: { xs: 16, sm: 24 },
+          top: { xs: 16, sm: 24 },
+          backgroundColor: theme.palette.primary.main,
+          color: 'white',
+          '&:hover': {
+            backgroundColor: theme.palette.primary.dark,
+            transform: 'scale(1.1)',
+          },
+          transition: 'all 0.2s ease-in-out',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        }}
+      >
+        <Home />
+      </IconButton>
+
       <Typography
         variant={isMobile ? "h5" : "h4"}
         gutterBottom
@@ -112,79 +136,132 @@ const PatientsList = () => {
       <Grid container spacing={3}>
         {patients && patients.length > 0 ? (
           patients.map((patient) => (
-            <Grid item xs={12} sm={6} md={4} key={patient.id}>
+            <Grid item xs={12} sm={6} md={6} lg={6} key={patient.id}>
               <Card
-                elevation={3}
+                elevation={2}
                 sx={{
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
-                  transition: "transform 0.2s ease-in-out",
+                  borderRadius: 4,
+                  background:
+                    "linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%)",
+                  transition: "all 0.3s ease-in-out",
+                  border: "1px solid rgba(0,0,0,0.05)",
                   "&:hover": {
-                    transform: "translateY(-5px)",
+                    transform: "translateY(-8px) scale(1.02)",
+                    boxShadow: "0 20px 30px rgba(0,0,0,0.1)",
+                    background:
+                      "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
                   },
                 }}
               >
-                <CardContent>
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="h6" component="div" gutterBottom>
-                      <Person sx={{ mr: 1, verticalAlign: "middle" }} />
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ mb: 2.5 }}>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        fontWeight: 600,
+                        color: theme.palette.primary.main,
+                        fontSize: "1.25rem",
+                      }}
+                    >
+                      <Person
+                        sx={{
+                          mr: 1.5,
+                          fontSize: 28,
+                          color: theme.palette.primary.main,
+                        }}
+                      />
                       {patient.name}
                     </Typography>
                     <Chip
                       label={patient.gender}
                       size="small"
                       color="primary"
-                      sx={{ mt: 1 }}
+                      sx={{
+                        mt: 1.5,
+                        borderRadius: "12px",
+                        textTransform: "capitalize",
+                        fontWeight: 500,
+                        px: 1,
+                      }}
                     />
                   </Box>
 
-                  <Box sx={{ mb: 1.5 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <Cake sx={{ mr: 1, verticalAlign: "middle" }} />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 2,
+                      "& .info-row": {
+                        display: "flex",
+                        alignItems: "center",
+                        p: 1,
+                        borderRadius: 2,
+                        backgroundColor: "rgba(0,0,0,0.02)",
+                        transition: "all 0.2s ease",
+                        "&:hover": {
+                          backgroundColor: "rgba(0,0,0,0.04)",
+                        },
+                      },
+                    }}
+                  >
+                    <Typography variant="body2" className="info-row">
+                      <Cake
+                        sx={{ mr: 1.5, color: theme.palette.secondary.main }}
+                      />
                       Age: {patient.age}
                     </Typography>
-                  </Box>
 
-                  <Box sx={{ mb: 1.5 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <LocalHospital sx={{ mr: 1, verticalAlign: "middle" }} />
-                      Doctor: {patient.selectedDoctor}
+                    <Typography variant="body2" className="info-row">
+                      <LocalHospital
+                        sx={{ mr: 1.5, color: theme.palette.error.main }}
+                      />
+                      {patient.selectedDoctor}
                     </Typography>
-                  </Box>
 
-                  <Box sx={{ mb: 1.5 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      <Phone sx={{ mr: 1, verticalAlign: "middle" }} />
+                    <Typography variant="body2" className="info-row">
+                      <Phone
+                        sx={{ mr: 1.5, color: theme.palette.success.main }}
+                      />
                       {patient.contactNumber}
                     </Typography>
-                  </Box>
 
-                  <Box>
                     <Typography
                       variant="body2"
-                      color="text.secondary"
+                      className="info-row"
                       sx={{
-                        display: "flex",
-                        alignItems: "flex-start",
+                        alignItems: "flex-start !important",
                       }}
                     >
-                      <LocationOn sx={{ mr: 1, mt: 0.25 }} />
+                      <LocationOn
+                        sx={{
+                          mr: 1.5,
+                          mt: 0.5,
+                          color: theme.palette.warning.main,
+                        }}
+                      />
                       {patient.address}
                     </Typography>
-                  </Box>
 
-                  <Box sx={{ mt: 2 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        p: 1,
-                        bgcolor: "rgba(0, 0, 0, 0.04)",
-                        borderRadius: 1,
-                      }}
-                    >
-                      Cause: {patient.cause}
-                    </Typography>
+                    <Box sx={{ mt: 1 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          p: 2,
+                          bgcolor: "rgba(0, 0, 0, 0.03)",
+                          borderRadius: 3,
+                          border: "1px solid rgba(0, 0, 0, 0.08)",
+                          boxShadow: "inset 0 2px 4px rgba(0,0,0,0.03)",
+                        }}
+                      >
+                        <strong>Cause:</strong> {patient.cause}
+                      </Typography>
+                    </Box>
                   </Box>
                 </CardContent>
               </Card>

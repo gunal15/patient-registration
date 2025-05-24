@@ -12,7 +12,9 @@ import {
   Paper,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
+import { Home } from "@mui/icons-material";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import { usePGlite } from "@electric-sql/pglite-react";
@@ -126,7 +128,27 @@ const Registration = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4, md: 6 } }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 4, md: 6 }, position: 'relative' }}>
+      <IconButton
+        onClick={() => navigate('/')}
+        sx={{
+          position: 'absolute',
+          left: { xs: 16, sm: 24 },
+          top: { xs: 16, sm: 24 },
+          backgroundColor: theme.palette.primary.main,
+          color: 'white',
+          '&:hover': {
+            backgroundColor: theme.palette.primary.dark,
+            transform: 'scale(1.1)',
+          },
+          transition: 'all 0.2s ease-in-out',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          zIndex: 1,
+        }}
+      >
+        <Home />
+      </IconButton>
+
       <Paper
         elevation={6}
         sx={{

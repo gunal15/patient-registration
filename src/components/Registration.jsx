@@ -15,13 +15,13 @@ import {
 } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
-import { PGlite } from "@electric-sql/pglite";
+import { usePGlite } from "@electric-sql/pglite-react";
+
+import { useNavigate } from "react-router-dom";
 
 const Registration = () => {
-  const [db, setDb] = useState(null);
-  useEffect(() => {
-    setDb(new PGlite());
-  }, []);
+  const db = usePGlite();
+  const navigate = useNavigate();
   // const db = new PGlite();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -62,29 +62,9 @@ const Registration = () => {
     try {
       await db.exec({
         sql: `
-          CREATE TABLE IF NOT EXISTS patients (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            age INTEGER,
-            gender TEXT,
-            cause TEXT,
-            selectedDoctor TEXT,
-            contactNumber TEXT,
-            address TEXT
-          );
           INSERT INTO patients (id, name, age, gender, cause, selectedDoctor, contactNumber, address)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          VALUES (${patientData.id},${patientData.name},${patientData.age},${patientData.gender},${patientData.cause},${patientData.selectedDoctor}, ${patientData.contactNumber}, ${patientData.address});
         `,
-        args: [
-          patientData.id,
-          patientData.name,
-          patientData.age,
-          patientData.gender,
-          patientData.cause,
-          patientData.selectedDoctor,
-          patientData.contactNumber,
-          patientData.address,
-        ],
       });
 
       setPatientData({
@@ -99,6 +79,7 @@ const Registration = () => {
       });
       console.log("Patient registered successfully!");
       toast.success("Patient registered successfully!");
+      navigate("/");
     } catch (error) {
       console.error("Error registering patient:", error);
     }

@@ -9,10 +9,10 @@ import {
   Button,
 } from "@mui/material";
 import Carousel from "react-material-ui-carousel";
-import { useNavigate } from "react-router-dom";  // Change this import
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-  const navigate = useNavigate();  // Change this line
+  const navigate = useNavigate();
   const carouselImages = [
     {
       url: "https://images.unsplash.com/photo-1538108149393-fbbd81895907",
@@ -47,7 +47,10 @@ const HomePage = () => {
   ];
 
   const handleRegisterClick = () => {
-    navigate("/registration");  // Change this line
+    navigate("/registration"); // Change this line
+  };
+  const handleViewPatientsClick = () => {
+    navigate("/patients"); // Change this line
   };
 
   return (
@@ -94,6 +97,14 @@ const HomePage = () => {
           onClick={handleRegisterClick}
         >
           Register
+        </Button>
+        &nbsp; &nbsp;
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleViewPatientsClick}
+        >
+          View Patients
         </Button>
       </Box>
       <Container sx={{ py: 6 }}>
